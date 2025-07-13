@@ -1,0 +1,28 @@
+{
+  "name": "spark-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for integrating with walmart products backend API",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "watch": "tsx --watch src/index.ts"
+  },
+  "keywords": ["mcp", "cursor", "product", "backend"],
+  "author": "Khushal Agrawal",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.1",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.15.1",
+    "node-fetch": "^3.3.2",
+    "zod": "^4.0.5",
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "bin": {
+    "spark-customer-agent": "dist/index.js"
+  }
+}
