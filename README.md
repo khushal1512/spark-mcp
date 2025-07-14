@@ -37,19 +37,43 @@ This project embodies Walmart's vision of leveraging emerging technologies to tr
 
 ### 🛠️ Conversational Shopping Tools
 
+**Product Discovery:**
 - `get_products_by_category`: Fetch products from a specific category using natural language
 - `get_smartphones_by_price`: Filter smartphones by maximum price through conversational queries
+
+**Cart Management:**
 - `get_cart_items`: View shopping cart contents with simple voice or text commands
+- `add_to_cart`: Add products to cart with specified quantities
+- `remove_from_cart`: Remove products from cart (single item or all quantities)
+
+**Coupon & Discounts:**
 - `get_available_coupons`: Get available discount codes via natural language requests
+- `apply_coupon`: Apply discount coupons to cart for savings
+- `remove_coupon`: Remove applied coupons from cart
+
+**Order Management:**
 - `get_order_history`: Access order transaction history through conversational interface
+- `place_order`: Complete purchase with current cart items
 
 ### 💬 Example Natural Language Interactions
 
+**Product Discovery:**
 - *"Show me all smartphones under $300"* → Uses `get_smartphones_by_price`
 - *"What electronics do you have?"* → Uses `get_products_by_category`
+
+**Cart Management:**
 - *"What's in my shopping cart?"* → Uses `get_cart_items`
+- *"Add iPhone 15 to my cart"* → Uses `add_to_cart`
+- *"Remove the Nike shoes from my cart"* → Uses `remove_from_cart`
+
+**Coupons & Discounts:**
 - *"Do I have any coupons available?"* → Uses `get_available_coupons`
+- *"Apply coupon SAVE20 to my cart"* → Uses `apply_coupon`
+- *"Remove the coupon from my cart"* → Uses `remove_coupon`
+
+**Order Management:**
 - *"Show me my recent orders"* → Uses `get_order_history`
+- *"Place my order now"* → Uses `place_order`
 
 ## Prerequisites
 
@@ -114,11 +138,23 @@ To use this MCP server with Cursor, add the following configuration to your Curs
 
 The server expects the following endpoints to be available:
 
+**Product Discovery:**
 - `GET /products/{category}` - Get products by category
 - `GET /products/smartphones/{maxPrice}` - Get smartphones under max price
+
+**Cart Management:**
 - `GET /cart` - Get cart items
+- `POST /cart/add` - Add product to cart
+- `DELETE /cart/remove` - Remove product from cart
+
+**Coupon Management:**
 - `GET /coupons` - Get available coupons
+- `POST /cart/apply-coupon` - Apply coupon to cart
+- `DELETE /cart/remove-coupon` - Remove coupon from cart
+
+**Order Management:**
 - `GET /orders` - Get order history
+- `POST /orders/place` - Place new order
 
 ## Project Structure
 

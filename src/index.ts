@@ -90,6 +90,73 @@ const TOOLS = {
       properties: {},
     },
   },
+  add_to_cart: {
+    name: 'add_to_cart',
+    description: 'Add a product to the shopping cart with specified quantity',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        productId: {
+          type: 'string',
+          description: 'The ID of the product to add to cart',
+        },
+        quantity: {
+          type: 'number',
+          description: 'Quantity of the product to add (default: 1)',
+          minimum: 1,
+        },
+      },
+      required: ['productId'],
+    },
+  },
+  remove_from_cart: {
+    name: 'remove_from_cart',
+    description: 'Remove a product from the shopping cart',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        productId: {
+          type: 'string',
+          description: 'The ID of the product to remove from cart',
+        },
+        removeAll: {
+          type: 'boolean',
+          description: 'Whether to remove all quantities of the product (default: false)',
+        },
+      },
+      required: ['productId'],
+    },
+  },
+  apply_coupon: {
+    name: 'apply_coupon',
+    description: 'Apply a discount coupon to the shopping cart',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        couponCode: {
+          type: 'string',
+          description: 'The coupon code to apply',
+        },
+      },
+      required: ['couponCode'],
+    },
+  },
+  remove_coupon: {
+    name: 'remove_coupon',
+    description: 'Remove the applied coupon from the shopping cart',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  place_order: {
+    name: 'place_order',
+    description: 'Place an order with the current cart items',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+    },
+  },
 };
 
 // Helper function to make HTTP requests
@@ -253,6 +320,84 @@ async function handleGetOrderHistory(): Promise<string> {
   }
 }
 
+async function handleAddToCart(productId: string, quantity: number = 1): Promise<string> {
+  try {
+    if (quantity <= 0) {
+      return createResponse(false, null, 'Quantity must be greater than 0', 'Invalid quantity');
+    }
+
+    const url = `${BACKEND_BASE_URL}/cart/add`;
+    const data = await makeHttpRequest(url, {
+      method: 'POST',
+      body: JSON.stringify({ productId, quantity }),
+    });
+    
+    return createResponse(true, data, `Successfully added ${quantity} item(s) to cart`);
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return createResponse(false, null, `Failed to add product to cart`, errorMsg);
+  }
+}
+
+async function handleRemoveFromCart(productId: string, removeAll: boolean = false): Promise<string> {
+  try {
+    const url = `${BACKEND_BASE_URL}/cart/remove`;
+    const data = await makeHttpRequest(url, {
+      method: 'DELETE',
+      body: JSON.stringify({ productId, removeAll }),
+    });
+    
+    const message = removeAll ? 'Successfully removed all items from cart' : 'Successfully removed 1 item from cart';
+    return createResponse(true, data, message);
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return createResponse(false, null, `Failed to remove product from cart`, errorMsg);
+  }
+}
+
+async function handleApplyCoupon(couponCode: string): Promise<string> {
+  try {
+    const url = `${BACKEND_BASE_URL}/cart/apply-coupon`;
+    const data = await makeHttpRequest(url, {
+      method: 'POST',
+      body: JSON.stringify({ couponCode }),
+    });
+    
+    return createResponse(true, data, `Successfully applied coupon: ${couponCode}`);
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return createResponse(false, null, `Failed to apply coupon: ${couponCode}`, errorMsg);
+  }
+}
+
+async function handleRemoveCoupon(): Promise<string> {
+  try {
+    const url = `${BACKEND_BASE_URL}/cart/remove-coupon`;
+    const data = await makeHttpRequest(url, {
+      method: 'DELETE',
+    });
+    
+    return createResponse(true, data, 'Successfully removed coupon from cart');
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return createResponse(false, null, 'Failed to remove coupon from cart', errorMsg);
+  }
+}
+
+async function handlePlaceOrder(): Promise<string> {
+  try {
+    const url = `${BACKEND_BASE_URL}/orders/place`;
+    const data = await makeHttpRequest(url, {
+      method: 'POST',
+    });
+    
+    return createResponse(true, data, 'Order placed successfully!');
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+    return createResponse(false, null, 'Failed to place order', errorMsg);
+  }
+}
+
 // List available tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   console.error(`ListTools called - returning ${Object.values(TOOLS).length} tools`);
@@ -293,6 +438,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'get_order_history':
         result = await handleGetOrderHistory();
+        break;
+
+      case 'add_to_cart':
+        if (!args?.productId) {
+          throw new Error('productId parameter is required');
+        }
+        result = await handleAddToCart(args?.productId as string, args?.quantity as number);
+        break;
+
+      case 'remove_from_cart':
+        if (!args?.productId) {
+          throw new Error('productId parameter is required');
+        }
+        result = await handleRemoveFromCart(args?.productId as string, args?.removeAll as boolean);
+        break;
+
+      case 'apply_coupon':
+        if (!args?.couponCode) {
+          throw new Error('couponCode parameter is required');
+        }
+        result = await handleApplyCoupon(args?.couponCode as string);
+        break;
+
+      case 'remove_coupon':
+        result = await handleRemoveCoupon();
+        break;
+
+      case 'place_order':
+        result = await handlePlaceOrder();
         break;
 
       default:
